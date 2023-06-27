@@ -209,7 +209,7 @@ end
 request = MySqliteRequest.new
 request = request.from('nba_players.csv')
 request = request.select('Player')
-request = request.where('birth_state', 'Indiana')
+request = request.where('birth_state', 'Indiana 2')
 request.run
 # request = request.from('nba_player_data.csv')
 # request = request.select('name, birth_date, position, college')
