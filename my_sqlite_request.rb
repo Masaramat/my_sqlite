@@ -93,12 +93,12 @@ class MySqliteRequest
             puts "Empty query"
             return
         else
-            puts request.first.keys.join(' | ')
-            puts '-' * request.first.keys.join(' | ').length
+            puts result.first.keys.join(' | ')
+            puts '-' * result.first.keys.join(' | ').length
             result.each do |row|
                 puts row.values.join(' | ')
             end
-            puts '-' * request.first.keys.join(' | ').length
+            puts '-' * result.first.keys.join(' | ').length
         end
     end
 
@@ -112,6 +112,7 @@ class MySqliteRequest
 
         case @request
         when 'SELECT'
+            result = []
             if @join != nil
                 parsed_file = run_join_tables
             end
@@ -124,7 +125,16 @@ class MySqliteRequest
             end
 
             if @columns != nil && @table_name != nil
-                result = get_columns(parsed_file, @columns)
+                csv_hash = CSV.read(parsed_file, headers: true)
+                csv_hash = csv_hash.map(&:to_h)
+                csv_hash.each do |record|
+                    res = {}
+                    @columns.split(',').map(&:strip).each do |column|
+                        value = record[column]
+                        res[column] = value
+                    end
+                    result << res
+                end
                 print_result(result)
                 return
             else
@@ -157,3 +167,9 @@ class MySqliteRequest
     end
 
 end
+
+request = MySqliteRequest.new
+request = request.from('nba_player_data.csv')
+request = request.select('name, birth_date, position')
+request = request.where('college', 'Indiana University')
+request.run
