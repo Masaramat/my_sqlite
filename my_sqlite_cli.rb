@@ -35,8 +35,8 @@ def process_action(action, args, request)
         if args.length < 1
             puts "Ex.: SELECT name, age"
             return
-        else
-            request.select(args)
+        else            
+            request.select(args)           
         end
     when "where"
         if args.length != 1
@@ -78,9 +78,10 @@ def process_action(action, args, request)
         end
     when "update"
         if args.length != 1
-            puts "Ex.: UPDATE db.csv"
+            p "Ex.: UPDATE db.csv"
         else
             request.update(*args)
+           
         end
     when "set"
         if args.length < 1
@@ -90,8 +91,8 @@ def process_action(action, args, request)
         end
     when "delete"
         if args.length != 0
-            # conditional statement to confirm deletion of table
-            puts "Ex.: DELETE FROM db.csv! Use WHERE - otherwise WATCH OUT."
+            
+            puts "Wrong query format"
         else
             request.delete 
         end
@@ -129,8 +130,9 @@ def execute_request(sql)
         args[-1] = args[-1].chomp(";")
         process_action(command, args, request)
         request.run
+        puts "Executed"
     else
-        p "Finish your request with ;"
+        p 'Finish your request with' ;
     end
 end
 
@@ -146,3 +148,12 @@ def run
 end
 
 run()
+
+# Test run the project with the following commands
+
+# --SELECT
+
+# SELECT Player, collage FROM nba_players.csv;
+# SELECT Player, collage FROM nba_players.csv WHERE sno = 125;
+# SELECT Player, collage FROM nba_players.csv ORDER Player ASC;
+# SELECT Player, collage FROM nba_players.csv WHERE collage = University of Kansas ORDER Player DESC;

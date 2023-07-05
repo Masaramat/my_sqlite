@@ -2,6 +2,7 @@ require 'csv'
 require 'json'
 
 class MySqliteRequest
+    attr_reader :table_name
 
     def initialize
 
@@ -74,6 +75,21 @@ class MySqliteRequest
 
     end
 
+    def delete_all_records(csv_file)
+        # Read the existing CSV file
+        data = CSV.read(csv_file)
+      
+        # Clear the data array, leaving only the header row
+        data.clear
+      
+        # Write the modified data back to the CSV file
+        CSV.open(csv_file, 'w') do |csv|
+          data.each { |row| csv << row }
+        end
+      
+        puts "All records deleted from #{csv_file}."
+      end
+
     # method to print the result of query execution
     def print_result(result)
         if !result
@@ -143,13 +159,12 @@ class MySqliteRequest
                 csv_hash.each do |record|
                     res = {}
                     # slits the string given as the colum into array for easier fetching
-                    @columns.split(',').map(&:strip).each do |column|
+                    @columns.each do |column|
                         value = record[column]
                         res[column] = value
                     end
                     result << res
-                end
-                
+                end                
                 print_result(result)
                 return
             else
@@ -167,18 +182,25 @@ class MySqliteRequest
             print_result(csv_hash)
        
         when 'UPDATE'
-            if @where != nil
-                # gets the record using the where clause
-                csv_hash.select do |record|
+            
+            # gets the record using the where clause
+            csv_hash.select do |record|
+                if @where != nil
                     if record[@where[:column].to_s] == @where[:value]
                         record.merge!(@data)
                     end
+
+                else
+                    record.merge!(@data)                    
                 end
-                # writes the updated record to the csv file
-                CSV.open(@table_name, 'w', write_headers: true, headers: csv_hash.first.keys) do |csv|
-                    csv_hash.each {|row| csv << row.values }
-                end
+
             end
+            # writes the updated record to the csv file
+            CSV.open(@table_name, 'w', write_headers: true, headers: csv_hash.first.keys) do |csv|
+                csv_hash.each {|row| csv << row.values }
+            end
+
+            
             
         when 'DELETE'
             if @where != nil
@@ -191,7 +213,10 @@ class MySqliteRequest
                 CSV.open(@table_name, 'w', write_headers: true, headers: csv_hash.first.keys) do |csv|
                     csv_hash.each {|row| csv << row.values }
                 end
+            else
+                delete_all_records(@table_name)                    
             end
+
         end
         # set all variables to nill 
         @request = nil
@@ -205,11 +230,10 @@ end
 
 # code testing
 
-request = MySqliteRequest.new
-request = request.from('nba_players.csv')
-request = request.select('Player')
-request = request.where('birth_state', 'Indiana')
-request.run
+# request = MySqliteRequest.new
+# request = request.from('nba_players.csv')
+# request.select(["sno", "Player", "collage"])
+# request.run
 # request = request.from('nba_player_data.csv')
 # request = request.select('name, birth_date, position, college')
 # request = request.where('college', 'Jos University')
