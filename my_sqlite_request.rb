@@ -255,7 +255,6 @@ class MySqliteRequest
 end
 
 # code testing
-
 # request = MySqliteRequest.new
 # request = request.from('nba_player_data.csv')
 # request = request.select('name')

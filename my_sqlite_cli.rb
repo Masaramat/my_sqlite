@@ -104,7 +104,7 @@ def process_action(action, args, request)
            
         end
     when "set"
-        puts array_to_hash(args)
+        puts array_to_hash(args) 
         if args.length < 1
             puts "Ex.: SET name=BOB. Use WHERE - otherwise WATCH OUT."
         else
