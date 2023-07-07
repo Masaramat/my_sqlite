@@ -2,9 +2,10 @@ require 'csv'
 require 'json'
 
 class MySqliteRequest
-    attr_reader :table_name
+    attr_reader :table_name 
 
     def initialize
+        @where = []
 
     end
 
@@ -17,6 +18,11 @@ class MySqliteRequest
         return self
     end
 
+    def select_all
+        @select_all = true
+        return self
+    end
+
     def select(columns)
         if columns != nil
             @request = "SELECT"
@@ -25,8 +31,8 @@ class MySqliteRequest
         return self
     end
 
-    def where(column_name, criteria)
-        @where = {column: column_name, value: criteria}
+    def where(column_name, criteria)        
+        @where << {column: column_name, value: criteria}
         return self
 
     end
@@ -114,6 +120,9 @@ class MySqliteRequest
 
     def run 
         if @table_name != nil
+            if !@table_name.end_with?(".csv")
+                @table_name = "#{@table_name}.csv"
+            end
             csv_hash = CSV.read(@table_name, headers: true)
             csv_hash = csv_hash.map(&:to_h)
         else
@@ -150,16 +159,25 @@ class MySqliteRequest
 
             if @where != nil
                 # implements where to select only selected records
-                csv_hash = csv_hash.select do |record|
-                    record[@where[:column].to_s] == @where[:value]
+                @where.each do |condition|
+                    csv_hash = csv_hash.select do |record|
+                        record[condition[:column].to_s] == condition[:value]
+                    end
+                    
                 end
+            end
+            if @select_all
+                result = csv_hash
+                print_result(result)
+                return
             end
             # final block that performs the select and prints the result using print_result function
             if @columns != nil && @table_name != nil 
+
                 csv_hash.each do |record|
                     res = {}
                     # slits the string given as the colum into array for easier fetching
-                    @columns.each do |column|
+                    @columns.split(', ').each do |column|
                         value = record[column]
                         res[column] = value
                     end
@@ -167,27 +185,30 @@ class MySqliteRequest
                 end                
                 print_result(result)
                 return
-            else
+            else 
                 puts "There is an error in you query"
             end
         when 'INSERT'
+            csv_result = []
             if @data != nil && @table_name != nil
                 # opens and append records to the csv file using csv_hash
-                csv_hash = CSV.open(@table_name, 'a') do |csv|
-                    @data.each do |row|
-                        csv << row.values
-                    end
+                csv_hash = CSV.open(@table_name, 'a') do |csv|                   
+                    csv <<  @data.values 
+                                     
                 end
-            end
-            print_result(csv_hash)
+                
+            end            
+           return "Executed"
        
         when 'UPDATE'
             
             # gets the record using the where clause
             csv_hash.select do |record|
                 if @where != nil
-                    if record[@where[:column].to_s] == @where[:value]
-                        record.merge!(@data)
+                    @where.each do |condition|
+                        if record[condition[:column].to_s] == condition[:value]
+                            record.merge!(@data)
+                        end
                     end
 
                 else
@@ -205,13 +226,15 @@ class MySqliteRequest
         when 'DELETE'
             if @where != nil
                 # deletes a record from the hash file
-                csv_hash.reject! do |record|
-                    record[@where[:column].to_s] == @where[:value]            
-                    
-                end
-                # writes the result to the csv file
-                CSV.open(@table_name, 'w', write_headers: true, headers: csv_hash.first.keys) do |csv|
-                    csv_hash.each {|row| csv << row.values }
+                @where.each do |condition|
+                    csv_hash.reject! do |record|
+                        record[condition[:column].to_s] == condition[:value]            
+                        
+                    end
+                    # writes the result to the csv file
+                    CSV.open(@table_name, 'w', write_headers: true, headers: csv_hash.first.keys) do |csv|
+                        csv_hash.each {|row| csv << row.values }
+                    end
                 end
             else
                 delete_all_records(@table_name)                    
@@ -230,25 +253,10 @@ end
 
 # code testing
 
-# request = MySqliteRequest.new
-# request = request.from('nba_players.csv')
-# request.select(["sno", "Player", "collage"])
-# request.run
-# request = request.from('nba_player_data.csv')
-# request = request.select('name, birth_date, position, college')
-# request = request.where('college', 'Jos University')
-# request = request.join('college', 'nba_players.csv', 'college')
-# request = request.order('asc', 'name')
-# request = request.insert('nba_player_data.csv')
-# request = request.values([
-#     {'name' => 'innocent Mangut', 'year_start' => '1990', 'year_end'=>'1999', 'position' => 'FF-10', 'height' => '3.56', 'weight' => '300', 'birth_date'=> 'June 24, 1968', 'college'=>'Jos University'},
-#     {'name' => 'innocent Silas', 'year_start' => '1990', 'year_end'=>'1999', 'position' => 'FF-10', 'height' => '3.56', 'weight' => '300', 'birth_date'=> 'June 24, 1968', 'college'=>'Jos University'}
-# ])
 
-# request = request.update('nba_player_data.csv')
-# request.from('nba_player_data.csv')
-# request = request.where('name', 'Ante Zizic')
-# request = request.delete()
-# request = request.set({'name' => 'Mangut Innocent', 'year_start' => '1890', 'year_end'=>'1999', 'position' => 'FF-10', 'height' => '3.56', 'weight' => '300', 'birth_date'=> 'June 24, 1968', 'college'=>'Jos University'})
-
+request = MySqliteRequest.new
+request = request.from('nba_player_data.csv')
+request = request.select('name')
+request = request.where('year_start', '1997')
+request.run
 

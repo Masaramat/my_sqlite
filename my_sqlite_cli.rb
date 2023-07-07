@@ -29,21 +29,32 @@ def process_action(action, args, request)
             puts "Ex.: FROM db.csv"
             return
         else
+            
             request.from(*args)
         end
     when "select"
         if args.length < 1
             puts "Ex.: SELECT name, age"
             return
-        else            
-            request.select(args)           
+        else 
+            if args.join(", ") =="*"
+                request.select_all
+            end
+            request.select(args.join(", "))                                 
+                      
         end
     when "where"
-        if args.length != 1
+        args = args.join(" ")
+        puts args
+        
+        if args[0].length != 1
             puts "Ex.: WHERE age=20"
         else
-            col, val = args[0].split("=")
-            request.where(col, val)
+            
+           col, val = args.split("=")
+           puts col
+        #    puts val
+           request.where(col, val)
         end
     when "order"
         if args.length != 2
@@ -65,12 +76,14 @@ def process_action(action, args, request)
             request.join(col_a, table, col_b)
         end
     when "insert"
+        puts args[0].split(" ")[1]
         if args.length != 1
             puts "Ex.: INSERT db.csv. Use VALUES"
         else
-            request.insert(*args)
+            request.insert(args[0].split(" ")[1])
         end
     when "values"
+        puts args([1..-2])
         if args.length < 1
             puts "Provide some data to insert. Ex.: name=BOB, birth_state=CA, age=90"
         else
@@ -108,6 +121,8 @@ def execute_request(sql)
     args = []
     request = MySqliteRequest.new
     splited_command = sql.split(" ")
+
+
     
     0.upto splited_command.length - 1 do |arg|
         # p splited_command[arg]
