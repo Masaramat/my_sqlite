@@ -254,9 +254,10 @@ end
 # code testing
 
 
-request = MySqliteRequest.new
-request = request.from('nba_player_data.csv')
-request = request.select('name')
-request = request.where('year_start', '1997')
-request.run
+# request = MySqliteRequest.new
+# request = request.from('nba_player_data.csv')
+# request = request.select('name')
+# request = request.where('college', 'University of California')
+# request = request.where('year_start', '1997')
+# request.run
 
