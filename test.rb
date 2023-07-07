@@ -35,11 +35,11 @@ request.run
 # request = request.where('name', 'Alaa Abdelnaby')
 # request.run
 
-SELECT * FROM studentss
+# SELECT * FROM studentss
 
-SELECT name,email FROM students WHERE name = 'Mila'
+# SELECT name,email FROM students WHERE name = 'Mila'
 
-INSERT INTO students VALUES (John,john@johndoe.com,A,https://blog.johndoe.com)
+# INSERT INTO students VALUES (John,john@johndoe.com,A,https://blog.johndoe.com)
 
 UPDATE students SET email = 'jane@janedoe.com', blog = 'https://blog.janedoe.com' WHERE name = 'Mila'
 

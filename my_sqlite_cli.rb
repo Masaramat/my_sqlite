@@ -1,4 +1,5 @@
 require 'readline'
+require 'json'
 require_relative "my_sqlite_request"
 
 def readline_with_hist_management
@@ -51,8 +52,9 @@ def process_action(action, args, request)
             puts "Ex.: WHERE age=20"
         else
             
-           col, val = args.split("=")
+           col, val = args.split(/\s*=\s*/, 2)
            puts col
+           puts val
         #    puts val
            request.where(col, val)
         end
@@ -76,17 +78,23 @@ def process_action(action, args, request)
             request.join(col_a, table, col_b)
         end
     when "insert"
-        puts args[0].split(" ")[1]
         if args.length != 1
             puts "Ex.: INSERT db.csv. Use VALUES"
         else
             request.insert(args[0].split(" ")[1])
         end
     when "values"
+        
         if args.length < 1
             puts "Provide some data to insert. Ex.: name=BOB, birth_state=CA, age=90"
         else
-            request.values(array_to_hash(args))
+            data = args.join(" ")
+            data = data[1..-2]
+            data_array = data.split(",")
+            headers = CSV.read(request.table_name+".csv", headers: true).map(&:to_h).first.keys
+            data_hash = headers.zip(data_array).to_h
+            
+            request.values(data_hash)
         end
     when "update"
         if args.length != 1
@@ -96,6 +104,7 @@ def process_action(action, args, request)
            
         end
     when "set"
+        puts array_to_hash(args)
         if args.length < 1
             puts "Ex.: SET name=BOB. Use WHERE - otherwise WATCH OUT."
         else

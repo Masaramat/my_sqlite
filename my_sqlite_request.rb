@@ -194,11 +194,13 @@ class MySqliteRequest
                 # opens and append records to the csv file using csv_hash
                 csv_hash = CSV.open(@table_name, 'a') do |csv|                   
                     csv <<  @data.values 
-                                     
-                end
+                                                        
+                end  
+                csv_result << @data
+                print_result(csv_result)              
                 
             end            
-           return "Executed"
+           
        
         when 'UPDATE'
             
@@ -212,6 +214,7 @@ class MySqliteRequest
                     end
 
                 else
+                    puts@data
                     record.merge!(@data)                    
                 end
 
@@ -253,11 +256,11 @@ end
 
 # code testing
 
-
 # request = MySqliteRequest.new
 # request = request.from('nba_player_data.csv')
 # request = request.select('name')
 # request = request.where('college', 'University of California')
 # request = request.where('year_start', '1997')
 # request.run
+
 
