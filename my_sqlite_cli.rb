@@ -83,7 +83,6 @@ def process_action(action, args, request)
             request.insert(args[0].split(" ")[1])
         end
     when "values"
-        puts args([1..-2])
         if args.length < 1
             puts "Provide some data to insert. Ex.: name=BOB, birth_state=CA, age=90"
         else

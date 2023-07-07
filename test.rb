@@ -11,12 +11,12 @@ require "my_sqlite_request"
 # request = request.where('college', 'University of California')
 # request.run
 
-# request = MySqliteRequest.new
-# request = request.from('nba_player_data.csv')
-# request = request.select('name')
-# request = request.where('college', 'University of California')
-# request = request.where('year_start', '1997')
-# request.run
+request = MySqliteRequest.new
+request = request.from('nba_player_data.csv')
+request = request.select('name')
+request = request.where('college', 'University of California')
+request = request.where('year_start', '1997')
+request.run
 
 # request = MySqliteRequest.new
 # request = request.insert('nba_player_data.csv')
@@ -35,7 +35,7 @@ require "my_sqlite_request"
 # request = request.where('name', 'Alaa Abdelnaby')
 # request.run
 
-SELECT * FROM students
+SELECT * FROM studentss
 
 SELECT name,email FROM students WHERE name = 'Mila'
 
