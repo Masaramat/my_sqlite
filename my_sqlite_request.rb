@@ -81,20 +81,26 @@ class MySqliteRequest
 
     end
 
-    def delete_all_records(csv_file)
-        # Read the existing CSV file
-        data = CSV.read(csv_file)
-      
-        # Clear the data array, leaving only the header row
+    def delete_all_records(table_name)
+        # Read the CSV file 
+        data = CSV.read(table_name)
+        
+        # Save the header row into this variable
+        header = data[0]
+        
+        # Deletes all contents of the csv
         data.clear
-      
-        # Write the modified data back to the CSV file
-        CSV.open(csv_file, 'w') do |csv|
+        # Writes the header back to the data array
+        data << header
+        
+        # Write the Header back to the file
+        CSV.open(table_name, 'w') do |csv|
           data.each { |row| csv << row }
-        end
+        end        
+        puts "All records deleted from #{table_name}."
+    end
+    
       
-        puts "All records deleted from #{csv_file}."
-      end
 
     # method to print the result of query execution
     def print_result(result)
@@ -117,8 +123,9 @@ class MySqliteRequest
         end
     end
     
-
+    # Runs the class with the curent status of the request
     def run 
+        # Table must be given 
         if @table_name != nil
             if !@table_name.end_with?(".csv")
                 @table_name = "#{@table_name}.csv"
@@ -202,11 +209,10 @@ class MySqliteRequest
             end            
            
        
-        when 'UPDATE'
-            
+        when 'UPDATE'            
             # gets the record using the where clause
             csv_hash.select do |record|
-                if @where != nil
+                if @where.length > 0
                     @where.each do |condition|
                         if record[condition[:column].to_s] == condition[:value]
                             record.merge!(@data)
@@ -214,7 +220,7 @@ class MySqliteRequest
                     end
 
                 else
-                    puts@data
+                #    Updates all records if where condition is not supplied
                     record.merge!(@data)                    
                 end
 
@@ -227,8 +233,9 @@ class MySqliteRequest
             
             
         when 'DELETE'
-            if @where != nil
-                # deletes a record from the hash file
+            
+            if @where.length > 0
+                # deletes records from the hash file with where condition
                 @where.each do |condition|
                     csv_hash.reject! do |record|
                         record[condition[:column].to_s] == condition[:value]            
@@ -240,6 +247,9 @@ class MySqliteRequest
                     end
                 end
             else
+                puts "deleting all records"
+                p @where.length;
+                # Deletes all records from csv file if where condition is not specified                
                 delete_all_records(@table_name)                    
             end
 
@@ -255,11 +265,10 @@ class MySqliteRequest
 end
 
 # code testing
-# request = MySqliteRequest.new
-# request = request.from('nba_player_data.csv')
-# request = request.select('name')
-# request = request.where('college', 'University of California')
-# request = request.where('year_start', '1997')
-# request.run
+request = MySqliteRequest.new
+request = request.update('nba_player_data.csv')
+request = request.values('name' => 'Alaa Renamed')
+# request = request.where('name', 'Mangut Innocent')
+request.run
 
 

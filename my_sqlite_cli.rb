@@ -1,7 +1,7 @@
 require 'readline'
 require 'json'
 require_relative "my_sqlite_request"
-
+# method to get user inputs
 def readline_with_hist_management
     line = Readline.readline('my_sqlite_cli> ', true)
     # return nil if line.nil?
@@ -10,7 +10,7 @@ def readline_with_hist_management
     end
     line
 end
-
+# Converts arrays to hash for inputs in the methods 
 def array_to_hash(arr)
     result = Hash.new
     i = 0
@@ -21,9 +21,8 @@ def array_to_hash(arr)
     end
     return result
 end
-
+# Processes segments of command based on conditions
 def process_action(action, args, request)
-    # p action
     case action
     when "from"
         if args.length != 1
@@ -46,16 +45,12 @@ def process_action(action, args, request)
         end
     when "where"
         args = args.join(" ")
-        puts args
-        
         if args[0].length != 1
             puts "Ex.: WHERE age=20"
         else
-            
+            # Splits the arguments irrespective of whitespaces  
            col, val = args.split(/\s*=\s*/, 2)
-           puts col
-           puts val
-        #    puts val
+           
            request.where(col, val)
         end
     when "order"
@@ -97,6 +92,7 @@ def process_action(action, args, request)
             request.values(data_hash)
         end
     when "update"
+        p args
         if args.length != 1
             p "Ex.: UPDATE db.csv"
         else
@@ -104,25 +100,20 @@ def process_action(action, args, request)
            
         end
     when "set"
-        puts array_to_hash(args) 
         if args.length < 1
             puts "Ex.: SET name=BOB. Use WHERE - otherwise WATCH OUT."
         else
             request.set(array_to_hash(args)) 
         end
-    when "delete"
-        if args.length != 0
-            
-            puts "Wrong query format"
-        else
-            request.delete 
-        end
+    when "delete"         
+        request.delete 
+        
     else
-        puts "Work in progress, don't have this statement yet :)"
-        puts "If you want to quit - type quit."
+        puts "There is an error in your sql"
+        puts "type quit to exit."
     end
 end
-
+# Executes the request
 def execute_request(sql)
     valid_actions = ["SELECT", "FROM", "JOIN", "WHERE", "ORDER", "INSERT", "VALUES", "UPDATE", "SET", "DELETE"]
     command = nil
@@ -131,7 +122,7 @@ def execute_request(sql)
     splited_command = sql.split(" ")
 
 
-    
+    # Splits command written in CLI  into separate commands based on valid actions
     0.upto splited_command.length - 1 do |arg|
         # p splited_command[arg]
         if valid_actions.include?(splited_command[arg].upcase())
@@ -147,8 +138,7 @@ def execute_request(sql)
         else
             args << splited_command[arg]
         end
-    end
-    # p args[-1, 1]
+    end   
     if args[-1].end_with?(";")
         args[-1] = args[-1].chomp(";")
         process_action(command, args, request)
@@ -158,9 +148,9 @@ def execute_request(sql)
         p 'Finish your request with' ;
     end
 end
-
+# Starts up the CLI and get command and calls function to execute it
 def run
-    puts "MySQLite version 0.2 2021-feb-jan"
+    puts "MySQLite version 0.1 July, 2023"
     while command = readline_with_hist_management
         if command == "quit"
             break

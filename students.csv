@@ -1,12 +1,3 @@
-name,email,grade,blog,
+name,email,grade,blog
 mangut,mangut@gmail.com,A,friendsearch.ngSarah,sarah@abc.com
-"Sarah,sarah@abc.com,A,red.gl",,,,
-"Sarah,sarah@abc.com,A,red.gl",,,,
-Sarah,sarah@abc.com,A,red.gl,
-Sarah,"sarah@abc.com, A, red.gl",,,
-Sarah,"sarah@abc.com,A,red.gl",,,
-Sarah,"sarah@abc.com, A, red.gl",,,
-Sarah,"sarah@abc.com, A, red.gl",,,
-Sarah, sarah@abc.com, A, red.gl,
-Sarah,sarah@abc.com,A,red.gl,
 John,john@johndoe.com,A,https://blog.johndoe.com,
