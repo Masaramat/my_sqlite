@@ -247,8 +247,7 @@ class MySqliteRequest
                     end
                 end
             else
-                puts "deleting all records"
-                p @where.length;
+                # puts "deleting all records"
                 # Deletes all records from csv file if where condition is not specified                
                 delete_all_records(@table_name)                    
             end
@@ -264,11 +263,5 @@ class MySqliteRequest
 
 end
 
-# code testing
-request = MySqliteRequest.new
-request = request.update('nba_player_data.csv')
-request = request.values('name' => 'Alaa Renamed')
-# request = request.where('name', 'Mangut Innocent')
-request.run
 
 
